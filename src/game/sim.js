@@ -77,6 +77,27 @@ export class Sim {
         n.mass += def.mass;
       }
     });
+    // connected builds: union-find over joints joined by parts
+    const keys = [...info.keys()];
+    const parent = new Map(keys.map((k) => [k, k]));
+    const find = (k) => { while (parent.get(k) !== k) { parent.set(k, parent.get(parent.get(k))); k = parent.get(k); } return k; };
+    for (const p of parts) {
+      if (PARTS[p.t].kind !== 'link') continue;
+      const a = find(keyOf(p.a[0], p.a[1]));
+      const b = find(keyOf(p.b[0], p.b[1]));
+      if (a !== b) parent.set(a, b);
+    }
+    const groupId = new Map();
+    const fixedRoot = new Set();
+    for (const n of info.values()) if (n.fixed) fixedRoot.add(find(n.k));
+    for (const n of info.values()) {
+      const r = find(n.k);
+      if (fixedRoot.has(r)) n.group = -1;
+      else {
+        if (!groupId.has(r)) groupId.set(r, groupId.size);
+        n.group = groupId.get(r);
+      }
+    }
     const w = this.world;
     for (const n of info.values()) {
       const mass = Math.max(0.05, n.mass);
@@ -88,6 +109,7 @@ export class Sim {
         kind: n.wheel ? 'wheel' : 'node',
         floatF: n.floatF,
         windK: 0.15 + (1.3 * n.balloons) / mass,
+        group: n.group,
       });
       w.points[idx].lift = n.balloons * BALLOON_LIFT;
       this.nodeOf.set(n.k, idx);
@@ -109,7 +131,7 @@ export class Sim {
           part: i,
         });
         this.partLinks.set(i, li);
-        if (p.t === 'plank') {
+        if (p.t === 'plank' || p.t === 'spring') {
           for (const k of [keyOf(p.a[0], p.a[1]), keyOf(p.b[0], p.b[1])]) {
             if (!plankAt.has(k)) plankAt.set(k, []);
             plankAt.get(k).push(li);
@@ -121,7 +143,7 @@ export class Sim {
         this.wheels.push({ part: i, node: this.nodeOf.get(keyOf(p.a[0], p.a[1])) });
       }
     });
-    // weld planks that meet at a free joint (bolts stay as pivots)
+    // weld planks (and springs) that meet at a free joint (bolts stay as pivots)
     for (const [k, list] of plankAt) {
       if (anchors.has(k)) continue;
       for (let i = 0; i < list.length; i++) {
@@ -187,7 +209,7 @@ export class Sim {
       return this.finish('won', 'flag');
     }
     for (const z of w.water) {
-      if (wob.x >= z.x0 && wob.x <= z.x1 && wob.y + WOB_R * 0.4 > z.y0 && wob.y < z.y1 + WOB_R) {
+      if (wob.x >= z.x0 && wob.x <= z.x1 && wob.y > z.y0 + WOB_R * 0.15 && wob.y < z.y1 + WOB_R) {
         this.events.push({ type: 'splash', x: wob.x, y: z.y0 });
         return this.finish('failed', 'splash');
       }

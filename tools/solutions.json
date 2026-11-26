@@ -142,5 +142,246 @@
         "sock"
       ]
     }
+  ],
+  "w2-1": [
+    {
+      "label": "one spring",
+      "build": "s 11 12 13 12",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "two springs",
+      "build": "s 11 12 13 12;s 21 9 22 9",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w2-2": [
+    {
+      "label": "windy jump",
+      "build": "s 8 12 10 12",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w2-3": [
+    {
+      "label": "two hops",
+      "build": "s 5 13 7 13;s 16 10 17 10",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "three hops",
+      "build": "s 5 13 7 13;s 16 10 17 10;s 23 7 24 7",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w2-4": [
+    {
+      "label": "flat spring",
+      "build": "s 8 12 10 12",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "tipped spring",
+      "build": "s 9 11 10 12",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w2-5": [
+    {
+      "label": "two balloons",
+      "build": "p 9 12 13 12;p 13 12 17 12;p 17 12 20 12;p 20 12 23 12;b 13 12;b 17 12",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "arched",
+      "build": "p 9 12 12 11;p 12 11 16 11;p 16 11 20 11;p 20 11 23 12;b 12 11;b 16 11;b 20 11",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w2-6": [
+    {
+      "label": "springboard",
+      "build": "p 10 13 13 12;p 13 12 16 11;p 16 13 16 11;s 16 11 18 11",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "double boing",
+      "build": "p 10 13 13 12;p 13 12 16 11;p 16 13 16 11;s 16 11 18 11;s 22 8 24 8",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w2-7": [
+    {
+      "label": "hammock",
+      "build": "p 9 11 12 12;p 12 12 15 13;p 15 13 18 12;p 18 12 21 11;p 9 13 12 12;p 21 13 18 12",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w2-8": [
+    {
+      "label": "ride the updraft",
+      "build": "s 6 13 8 13;s 15 10 17 10",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w3-1": [
+    {
+      "label": "flat",
+      "build": "p 9 12 13 12;p 15 12 19 12",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "dip",
+      "build": "p 9 12 13 12;p 15 12 17 13;p 17 13 19 12",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w3-2": [
+    {
+      "label": "rollers",
+      "build": "w 9 12.5;w 10 12.5;w 11 12.5;w 12 12.5;w 13 12.5;w 14 12.5;w 15 12.5",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "roller boing",
+      "build": "w 9 12.5;w 10 12.5;s 11 12.5 12 12.5;w 12 12.5;w 13 12.5;w 14 12.5;w 15 12.5",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w3-3": [
+    {
+      "label": "arch",
+      "build": "p 8 12 11 10;p 11 10 14 9;p 14 9 17 10;p 17 10 20 12;r 12 4 11 10;r 15 4 17 10",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w3-4": [
+    {
+      "label": "hop hop",
+      "build": "s 5 12 7 12;s 14 12 15 12",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w3-5": [
+    {
+      "label": "roll and boing",
+      "build": "w 8 12.5;w 9 12.5;w 10 12.5;w 11 12.5;w 12 12.5;w 13 12.5;w 14 12.5;s 15 12.5 16 12.5",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w3-6": [
+    {
+      "label": "hanging",
+      "build": "p 7 12 10 11;p 10 11 13 10;p 13 10 17 10;p 17 10 21 10;p 21 10 23 11;p 23 11 25 12;r 13 3 13 10;r 21 3 21 10",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "hump",
+      "build": "p 7 12 10 11;p 10 11 13 10;p 13 10 15 9;p 15 9 17 10;p 17 10 21 10;p 21 10 23 11;p 23 11 25 12;r 13 3 13 10;r 21 3 21 10;r 17 3 17 10",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w3-7": [
+    {
+      "label": "one balloon",
+      "build": "p 8 12 11 11;p 11 11 15 11;p 15 11 19 11;p 19 11 22 11;p 22 11 23 12;b 15 11",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "high",
+      "build": "p 8 12 11 11;p 11 11 14 10;p 14 10 17 10;p 17 10 20 11;p 20 11 23 12;b 14 10;b 17 10",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w3-8": [
+    {
+      "label": "roll and boing",
+      "build": "w 6 12.5;w 7 12.5;w 8 12.5;w 9 12.5;w 10 12.5;w 11 12.5;w 12 12.5;w 13 12.5;w 14 12.5;s 15 12 16 12",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
   ]
 }

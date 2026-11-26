@@ -103,8 +103,10 @@ export function checkPart(level, parts, part) {
   if (part.t === 'wheel') {
     if (blocked(part.a)) return "Can't build inside the ground";
     if (parts.some((p) => p.t === 'wheel' && keyOf(...p.a) === k)) return 'There is already a wheel there';
+    // a wheel on a bolt is a roller: it can't sink into the ground, so it may touch it
+    const bolted = anchorKeys(level, parts).has(k);
     const d = T.edgeDistanceCell(part.a[0], part.a[1]);
-    if (d < WHEEL_R / CELL - 0.02) return 'Too close to the ground for a wheel';
+    if (!bolted && d < WHEEL_R / CELL - 0.02) return 'Too close to the ground for a wheel';
     return '';
   }
   if (part.t === 'sticky') {

@@ -9,6 +9,7 @@ import {
 } from './consts.js';
 
 const SKIN = 1.5;
+const PADDLE = 420; // push from a wheel spinning in water
 const BEND_STRESS = 3.0; // how much bending counts towards a plank's stress
 const DT2 = DT * DT;
 
@@ -81,6 +82,20 @@ export class World {
     this.steps = 0;
     this.events = [];
     this.motorsOn = true;
+    // Motor wheels on a free-standing build (a cart or a boat) wait for Wob to
+    // climb aboard. Wheels on bolts (rollers) always run.
+    this.awake = new Set();
+  }
+
+  wake(group) {
+    if (group >= 0 && !this.awake.has(group)) {
+      this.awake.add(group);
+      this.events.push({ type: 'motor', group });
+    }
+  }
+
+  motorOn(p) {
+    return this.motorsOn && (p.group < 0 || this.awake.has(p.group));
   }
 
   addPoint(x, y, opts = {}) {
@@ -95,6 +110,7 @@ export class World {
       w: 0, ang: 0, I: 1,
       lift: 0, floatF: opts.floatF ?? 0, windK: opts.windK ?? 0.15,
       stick: opts.stick ?? -1, sox: 0, soy: 0, // stuck to mover #stick
+      group: opts.group ?? -1, // which connected build this point belongs to
       contacts: [], nc: 0, grounded: false,
       fx: 0, fy: 0,
     };
@@ -208,9 +224,11 @@ export class World {
       if (p.kind !== 'wob') {
         for (const z of this.water) {
           if (p.x >= z.x0 && p.x <= z.x1 && p.y > z.y0 && p.y <= z.y1) {
-            let depth = (p.y - z.y0) / (CELL * 0.5);
+            let depth = (p.y - z.y0) / (CELL * 0.35);
             if (depth > 1) depth = 1;
             ay -= (p.floatF * depth * GRAVITY) / p.mass;
+            // a running wheel in water paddles forwards
+            if (p.kind === 'wheel' && this.motorOn(p)) ax += (PADDLE * depth) / p.mass;
             // water drag
             ax -= (p.x - p.px) / DT * 2.5;
             ay -= (p.y - p.py) / DT * 2.5;
@@ -232,7 +250,17 @@ export class World {
         p.py = p.y - m.vy * DT;
         continue;
       }
-      if (p.im === 0) { p.px = p.x; p.py = p.y; continue; }
+      if (p.im === 0) {
+        p.px = p.x;
+        p.py = p.y;
+        // a wheel on a bolt is a roller: its motor always runs
+        if (p.kind === 'wheel' && this.motorsOn) {
+          const target = WHEEL_SPEED / p.r;
+          p.w += Math.min(WHEEL_SPIN_ACCEL * DT, Math.max(-WHEEL_SPIN_ACCEL * DT, target - p.w));
+          p.ang += p.w * DT;
+        }
+        continue;
+      }
       const damp = p.kind === 'wob' ? 0.9998 : 0.999;
       let vx = (p.x - p.px) * damp + p.fx * DT2;
       let vy = (p.y - p.py) * damp + p.fy * DT2;
@@ -248,7 +276,7 @@ export class World {
       p.y += vy;
       if (p.kind !== 'node') {
         // spin: the motor only drives while touching the ground
-        if (this.motorsOn && p.grounded) {
+        if (p.grounded && (p.kind === 'wob' ? this.motorsOn : this.motorOn(p))) {
           const target = p.kind === 'wob' ? WOB_SPEED / p.r : WHEEL_SPEED / p.r;
           const acc = (p.kind === 'wob' ? WOB_SPIN_ACCEL : WHEEL_SPIN_ACCEL) * DT;
           let d = target - p.w;
@@ -460,6 +488,7 @@ export class World {
       if (last) {
         const vx = ((a.x - a.px) * (1 - t) + (b.x - b.px) * t) / DT;
         const vy = ((a.y - a.py) * (1 - t) + (b.y - b.py) * t) / DT;
+        this.wake(a.group);
         if (l.bounce) {
           // springs push Wob straight out from their face, on Wob's side
           const ex = b.x - a.x;
@@ -504,7 +533,8 @@ export class World {
         const ty = nx;
         const vx = (p.x - p.px) / DT + p.w * p.r * tx;
         const vy = (p.y - p.py) / DT + p.w * p.r * ty;
-        this.addContact(w, nx, ny, vx, vy, 0);
+        this.addContact(w, nx, ny, vx, vy, 2);
+        this.wake(p.group);
       }
     }
   }
@@ -586,12 +616,25 @@ export class World {
       if (c.ny < -0.35) p.grounded = true;
       // friction with rolling: try to make the contact point stop sliding
       const floorish = c.ny < -0.5;
-      const mu = floorish ? (isWob ? WOB_GRIP : 1.2) : 0.08;
-      const support = m * this.g * DT * (c.ny < 0 ? -c.ny : 0);
+      // rubber tyres (kind 2) grip on any side; walls are slippery
+      const mu = c.kind === 2 ? 1.4 : floorish ? (isWob ? WOB_GRIP : 1.2) : 0.08;
+      const support = m * this.g * DT * (c.kind === 2 ? 0.6 : c.ny < 0 ? -c.ny : 0);
       const jmax = mu * (jn + support);
       const tx = -c.ny;
       const ty = c.nx;
       const vt = rx * tx + ry * ty;
+      if (c.kind === 2 && isWob) {
+        // a spinning wheel works like a conveyor belt: it carries Wob along
+        // its surface without fighting Wob's own spin
+        let jt = -vt * m * 0.35;
+        if (jt > jmax) jt = jmax;
+        else if (jt < -jmax) jt = -jmax;
+        rx += tx * jt * invM;
+        ry += ty * jt * invM;
+        vx = rx + c.vx;
+        vy = ry + c.vy;
+        continue;
+      }
       const slip = vt - p.w * R;
       let jt = -slip / (invM + rI / m);
       if (jt > jmax) jt = jmax;

@@ -3,7 +3,7 @@
 export const PARTS = {
   plank: {
     name: 'Plank', cost: 10, kind: 'link', minLen: 1, maxLen: 4,
-    mass: 1, floatF: 2.6, strength: 7, collide: true,
+    mass: 1, floatF: 4, strength: 7, collide: true,
     tip: 'A wooden plank. Wob can roll on it. Bolt each end to something!',
   },
   rope: {
@@ -21,7 +21,7 @@ export const PARTS = {
     tip: 'Tie it to a joint and it lifts things up. Wind pushes it a lot.',
   },
   wheel: {
-    name: 'Wheel', cost: 15, kind: 'point', mass: 1, floatF: 1.2,
+    name: 'Wheel', cost: 15, kind: 'point', mass: 1, floatF: 2.4,
     tip: 'A motor wheel that rolls forwards. On a bolt, it spins in place like a roller.',
   },
   sticky: {
