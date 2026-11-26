@@ -1,0 +1,54 @@
+# Checks every level can be beaten, then publishes the static files to the
+# gh-pages branch, which GitHub Pages serves at https://gorzawebk.github.io/wobbleworks/
+# (Settings → Pages → Source: "Deploy from a branch", branch gh-pages / root.)
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Every level beatable, level and account codes round-trip
+        run: npm test
+      - name: Publish the static files to gh-pages
+        run: |
+          mkdir -p /tmp/site
+          cp -r index.html src assets /tmp/site/
+          touch /tmp/site/.nojekyll
+          cd /tmp/site
+          git init -q -b gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -qm "Publish ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+
+  # Plays through the whole app in headless Chromium (doesn't hold up publishing).
+  browser-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save playwright@1.48.2
+      - run: npx playwright install --with-deps chromium
+      - run: |
+          python3 -m http.server 8642 &
+          sleep 2
+          npm run e2e

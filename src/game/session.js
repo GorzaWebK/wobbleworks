@@ -333,6 +333,7 @@ export class Session {
 
   replay() {
     if (!this.lastRun) return;
+    this.replayOfWin = !$('result').hidden;
     $('result').hidden = true;
     this.sim = new Sim(this.level, this.lastRun);
     this.mode = 'replay';
@@ -345,7 +346,8 @@ export class Session {
 
   endReplay() {
     windLoop(false);
-    const wasWin = this.sim?.state === 'won';
+    const wasWin = this.replayOfWin;
+    this.replayOfWin = false;
     this.mode = 'build';
     this.sim = null;
     this.setRunUi(false);

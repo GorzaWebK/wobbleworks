@@ -40,7 +40,7 @@ export function normalizeLevel(raw) {
     anchors: (raw.anchors || []).map((a) => pt(a, [0, 0])),
     budget: Math.max(0, Math.round(num(raw.budget, 100))),
     par: Math.max(0, Math.round(num(raw.par, raw.budget ?? 100))),
-    parts: (raw.parts || ['plank']).filter((p) => PART_ORDER.includes(p)),
+    parts: PART_ORDER.filter((p) => (raw.parts || ['plank']).includes(p)),
     water: (raw.water || []).map(rect),
     wind: (raw.wind || []).map((r) => ({ ...rect(r), fx: num(r.fx, 0), fy: num(r.fy, 0) })),
     movers: (raw.movers || []).map((m) => ({

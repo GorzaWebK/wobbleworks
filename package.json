@@ -1,0 +1,12 @@
+{
+  "name": "wobbleworks",
+  "private": true,
+  "description": "A physics building puzzle: build it, press Go!, and watch Wob wobble to the flag.",
+  "type": "module",
+  "scripts": {
+    "start": "python3 -m http.server 8642",
+    "test": "node tools/verify-levels.mjs && node tools/test-codes.mjs",
+    "e2e": "node tools/browser-test.cjs",
+    "art": "node tools/make-art.cjs"
+  }
+}

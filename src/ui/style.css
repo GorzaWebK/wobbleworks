@@ -66,7 +66,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   padding: calc(16px + var(--safe-t)) calc(16px + var(--safe-r)) calc(16px + var(--safe-b)) calc(16px + var(--safe-l));
   touch-action: pan-y;
 }
-.screen.show { display: flex; align-items: center; justify-content: center; }
+.screen.show { display: flex; }
+.screen.show > * { margin: auto; }
 
 /* the workbench: plywood with sawdust and pencil marks */
 .bench {
@@ -448,7 +449,9 @@ input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--lime-deep)
 .race-touch .pad button { height: 40px; border-radius: 10px; border: 2px solid var(--pencil); background: rgba(255,255,255,.85); font-size: 16px; padding: 0; }
 
 /* ------------------------------------------------------------- editor */
-.ed-tray .part-btn canvas { height: 34px; }
+.ed-tray { width: 168px; display: grid; grid-template-columns: 1fr 1fr; align-content: start; gap: 6px; }
+.ed-tray .part-btn canvas { width: 60px; height: 28px; }
+.ed-tray .part-btn .nm { font-size: 14px; }
 .ed-panel { width: 210px; max-height: calc(100% - 100px); overflow-y: auto; -webkit-mask: none; mask: none; border-radius: 6px; }
 .ed-panel label { display: block; font-size: 15px; margin-top: 6px; }
 .ed-panel input[type=text], .ed-panel input[type=number] { width: 100%; font: inherit; font-size: 16px; border: 2px solid #bbb; border-radius: 6px; padding: 2px 6px; }
@@ -499,6 +502,19 @@ input[type=checkbox] { width: 24px; height: 24px; accent-color: var(--lime-deep)
   .notes .sticky { min-height: 78px; padding: 10px; }
   .notes .sticky b { font-size: 18px; }
   .race-timer { width: 60px; height: 60px; font-size: 24px; }
+}
+
+@media (max-height: 520px) {
+  .title-word { font-size: 38px; }
+  .tagline { margin-bottom: 8px; font-size: 16px; }
+  .notes { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .notes .sticky { min-height: 58px; padding: 6px 10px; }
+  .notes .sticky b { font-size: 16px; }
+  .notes .sticky span { font-size: 13px; }
+  .star-count { margin-top: 8px; font-size: 16px; }
+  .note { top: 44px; bottom: auto; left: 96px; width: 200px; font-size: 14px; padding: 8px 10px 12px; }
+  .receipt h4 { font-size: 11px; }
+  .clipboard.wide { max-height: calc(100vh - 20px); }
 }
 
 /* ---------------------------------------------------------- reduced motion */

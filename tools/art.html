@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<title>Wobbleworks art</title>
+<!-- Draws the social card and icons with the game's own drawing code.
+     Open with ?og (1200x630) or ?icon=180 and screenshot the canvas (see tools/make-art.cjs). -->
+<style>
+  @font-face { font-family: 'Patrick Hand'; src: url('../assets/fonts/patrick-hand-latin-400-normal.woff2') format('woff2'); }
+  @font-face { font-family: 'Permanent Marker'; src: url('../assets/fonts/permanent-marker-latin-400-normal.woff2') format('woff2'); }
+  html, body { margin: 0; background: #fff; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script type="module">
+import { WobLook } from '../src/render/wob.js';
+import { drawPlank, drawRope, drawSpring, drawBalloon, drawBolt, drawSockShape, MARKER, HAND } from '../src/render/draw.js';
+import { sketchLine, hatchRect } from '../src/render/sketch.js';
+import { star } from '../src/render/fx.js';
+
+await document.fonts.load('80px "Permanent Marker"');
+await document.fonts.load('30px "Patrick Hand"');
+const params = new URLSearchParams(location.search);
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+
+function paper(w, h, cell, wash = '#fbf5e4') {
+  ctx.fillStyle = wash;
+  ctx.fillRect(0, 0, w, h);
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= w; x += cell / 4) {
+    ctx.strokeStyle = x % cell === 0 ? 'rgba(43,108,214,0.22)' : 'rgba(43,108,214,0.07)';
+    ctx.beginPath(); ctx.moveTo(x + 0.5, 0); ctx.lineTo(x + 0.5, h); ctx.stroke();
+  }
+  for (let y = 0; y <= h; y += cell / 4) {
+    ctx.strokeStyle = y % cell === 0 ? 'rgba(43,108,214,0.22)' : 'rgba(43,108,214,0.07)';
+    ctx.beginPath(); ctx.moveTo(0, y + 0.5); ctx.lineTo(w, y + 0.5); ctx.stroke();
+  }
+}
+
+function block(x, y, w, h, seed) {
+  ctx.fillStyle = 'rgba(43,108,214,0.16)';
+  ctx.fillRect(x + 4, y + 5, w, h);
+  ctx.fillStyle = '#d8b688';
+  ctx.fillRect(x, y, w, h);
+  ctx.save();
+  ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip();
+  ctx.strokeStyle = 'rgba(168,131,79,0.5)'; ctx.lineWidth = 1.3;
+  hatchRect(ctx, x, y, w, h, 10, 1);
+  ctx.restore();
+  ctx.strokeStyle = '#4a4f57'; ctx.lineWidth = 2.6; ctx.lineCap = 'round';
+  sketchLine(ctx, x, y, x + w, y, seed, { passes: 2 });
+  sketchLine(ctx, x + w, y, x + w, y + h, seed + 1, { passes: 2 });
+  sketchLine(ctx, x, y, x, y + h, seed + 2, { passes: 2 });
+}
+
+if (params.has('og')) {
+  const W = 1200, H = 630;
+  c.width = W; c.height = H;
+  paper(W, H, 60);
+  // a blueprint dimension line across the top
+  ctx.strokeStyle = 'rgba(43,108,214,0.55)'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(60, 70); ctx.lineTo(1140, 70); ctx.moveTo(60, 60); ctx.lineTo(60, 80); ctx.moveTo(1140, 60); ctx.lineTo(1140, 80); ctx.stroke();
+  ctx.fillStyle = '#2b6cd6'; ctx.font = `24px ${HAND}`; ctx.textAlign = 'center';
+  ctx.fillText('build it wobbly · press Go! · cheer for Wob', 600, 62);
+  // title in jelly colours
+  ctx.font = `120px ${MARKER}`; ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  const word = 'Wobbleworks';
+  const cols = ['#4f9e12', '#ff8a1e', '#d43a83', '#2b6cd6'];
+  let tw = 0; for (const ch of word) tw += ctx.measureText(ch).width;
+  let x = (W - tw) / 2;
+  [...word].forEach((ch, i) => {
+    const y = 210 + Math.sin(i * 1.3) * 10;
+    ctx.save(); ctx.translate(x, y); ctx.rotate(Math.sin(i * 2.1) * 0.06);
+    ctx.lineWidth = 8; ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.strokeText(ch, 4, 6);
+    ctx.fillStyle = cols[i % 4]; ctx.fillText(ch, 0, 0);
+    ctx.restore();
+    x += ctx.measureText(ch).width;
+  });
+  // the level scene
+  block(-10, 470, 390, 200, 3);
+  block(800, 470, 420, 200, 9);
+  const deckY = 470;
+  drawPlank(ctx, 380, deckY, 520, deckY - 55, 0.1, { seed: 3 });
+  drawPlank(ctx, 520, deckY - 55, 660, deckY - 55, 0.45, { seed: 5 });
+  drawPlank(ctx, 660, deckY - 55, 800, deckY, 0.8, { seed: 7 });
+  drawRope(ctx, 520, 300, 520, deckY - 55, 0, 0, {});
+  drawBalloon(ctx, 660, deckY - 55, 0, 0.6, { reduced: true });
+  drawSpring(ctx, 900, deckY, 980, deckY, 0, 0, {});
+  for (const [bx, by] of [[380, deckY], [800, deckY], [520, 300]]) drawBolt(ctx, bx, by, true, bx);
+  ctx.fillStyle = '#fff'; ctx.strokeStyle = '#4a4f57'; ctx.lineWidth = 2;
+  for (const [jx, jy] of [[520, deckY - 55], [660, deckY - 55]]) { ctx.beginPath(); ctx.arc(jx, jy, 5, 0, 7); ctx.fill(); ctx.stroke(); }
+  // flag
+  ctx.strokeStyle = '#4a4f57'; ctx.lineWidth = 5; sketchLine(ctx, 1110, deckY, 1110, deckY - 120, 4, { passes: 2 });
+  ctx.fillStyle = '#ff5fa8'; ctx.beginPath(); ctx.moveTo(1110, deckY - 118); ctx.quadraticCurveTo(1140, deckY - 125, 1165, deckY - 95); ctx.quadraticCurveTo(1140, deckY - 85, 1110, deckY - 80); ctx.fill(); ctx.lineWidth = 2.5; ctx.stroke();
+  ctx.fillStyle = '#fff'; star(ctx, 1128, deckY - 99, 9, 4); ctx.fill();
+  drawSockShape(ctx, 450, 345, 2.2, 1, 0.2);
+  // Wob, big and squishy on the bridge
+  const look = new WobLook('lime');
+  look.vx = 160; look.vy = 0; look.ex = 2.2; look.ey = -0.5;
+  ctx.save(); ctx.translate(590, deckY - 55 - 6 - 46); ctx.scale(1.08, 0.94);
+  look.draw(ctx, 0, 0, 50, 0.6);
+  ctx.restore();
+  // stars
+  ctx.fillStyle = '#ffcf33'; ctx.strokeStyle = '#4a4f57'; ctx.lineWidth = 3;
+  [[150, 330], [215, 300], [280, 330]].forEach(([sx, sy], i) => { star(ctx, sx, sy, 28, 12, (i - 1) * 0.2); ctx.fill(); ctx.stroke(); });
+  ctx.fillStyle = '#1d4f9e'; ctx.font = `30px ${HAND}`; ctx.textAlign = 'center';
+  ctx.fillText('32 physics building puzzles', 215, 395);
+} else {
+  const S = Number(params.get('icon') || 180);
+  c.width = S; c.height = S;
+  // rounded blueprint-blue tile with graph lines and Wob
+  const r = S * 0.2;
+  ctx.fillStyle = '#2b6cd6';
+  ctx.beginPath(); ctx.roundRect(0, 0, S, S, r); ctx.fill();
+  ctx.save(); ctx.beginPath(); ctx.roundRect(0, 0, S, S, r); ctx.clip();
+  ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = Math.max(1, S / 120);
+  for (let k = S / 6; k < S; k += S / 6) { ctx.beginPath(); ctx.moveTo(k, 0); ctx.lineTo(k, S); ctx.moveTo(0, k); ctx.lineTo(S, k); ctx.stroke(); }
+  ctx.fillStyle = '#e6bd7f'; ctx.fillRect(0, S * 0.8, S, S * 0.2);
+  ctx.strokeStyle = '#4a4f57'; ctx.lineWidth = Math.max(1.5, S / 60); ctx.beginPath(); ctx.moveTo(0, S * 0.8); ctx.lineTo(S, S * 0.8); ctx.stroke();
+  ctx.restore();
+  const look = new WobLook('lime');
+  look.ex = 1.5;
+  look.draw(ctx, S * 0.5, S * 0.52, S * 0.3, 0.5);
+}
+document.body.dataset.ready = '1';
+</script>
+</body>
+</html>
