@@ -383,5 +383,114 @@
         "sock"
       ]
     }
+  ],
+  "w4-1": [
+    {
+      "label": "flat",
+      "build": "t 10 12;t 14 12;p 10 12 14 12",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "arch",
+      "build": "t 10 12;t 14 12;p 10 12 12 11;p 12 11 14 12",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w4-2": [
+    {
+      "label": "moon boing",
+      "build": "t 5 12;t 7 12;s 5 12 7 12",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w4-3": [
+    {
+      "label": "wall ramp",
+      "build": "t 6 13;t 18 9;p 6 13 9 12;p 9 12 12 11;p 12 11 15 10;p 15 10 18 9;t 12 13;p 12 13 12 11",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w4-4": [
+    {
+      "label": "boing past",
+      "build": "t 7 12;s 7 12 9 12",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w4-5": [
+    {
+      "label": "hung",
+      "build": "t 8 12;t 24 12;p 8 12 12 12;p 12 12 16 12;p 16 12 20 12;p 20 12 24 12;t 12 5;t 20 5;r 12 5 12 12;r 20 5 20 12",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "hump",
+      "build": "t 8 12;t 24 12;p 8 12 12 12;p 12 12 14 11;p 14 11 18 11;p 18 11 20 12;p 20 12 24 12;t 14 5;t 18 5;r 14 5 14 11;r 18 5 18 11",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w4-6": [
+    {
+      "label": "three hops",
+      "build": "t 4 13;t 5 13;s 4 13 5 13;t 14 11;t 15 11;s 14 11 15 11;t 23 9;t 24 9;s 23 9 24 9",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
+  ],
+  "w4-7": [
+    {
+      "label": "one balloon",
+      "build": "p 8 11 12 11;p 12 11 16 11;p 16 11 20 11;p 20 11 24 11;b 16 11",
+      "expect": [
+        "win",
+        "thrifty"
+      ]
+    },
+    {
+      "label": "high",
+      "build": "p 8 11 11 10;p 11 10 15 10;p 15 10 18 10;p 18 10 21 10;p 21 10 24 11;b 15 10;b 18 10",
+      "expect": [
+        "win",
+        "sock"
+      ]
+    }
+  ],
+  "w4-8": [
+    {
+      "label": "two boings",
+      "build": "t 4 13;t 5 13;s 4 13 5 13;t 14 10;t 16 10;s 14 10 16 10",
+      "expect": [
+        "win",
+        "thrifty",
+        "sock"
+      ]
+    }
   ]
 }
