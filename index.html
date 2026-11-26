@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <title>Wobbleworks</title>
+  <meta name="description" content="Build wobbly bridges, ramps and gadgets from planks, rope, springs, balloons, wheels and sticky pads, then press Go! and watch Wob the jelly blob roll to the flag.">
+  <meta name="theme-color" content="#2b6cd6">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Wobbleworks">
+  <meta property="og:description" content="A physics building puzzle: build it, press Go!, and watch Wob wobble to the flag.">
+  <meta property="og:image" content="assets/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+  <link rel="preload" href="assets/fonts/patrick-hand-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/permanent-marker-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="src/ui/style.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="stage" aria-label="Wobbleworks building area"></canvas>
+
+    <!-- loading -->
+    <section id="scr-loading" class="screen bench show">
+      <div class="loading-note sticky lime"><span class="marker">Wobbleworks</span><br>Sharpening pencils…</div>
+    </section>
+
+    <!-- username -->
+    <section id="scr-name" class="screen bench" aria-labelledby="name-title">
+      <div class="clipboard name-board">
+        <div class="clip" aria-hidden="true"></div>
+        <div class="sheet">
+          <h1 id="name-title" class="marker">New inventor</h1>
+          <p>Every inventor needs a name for their badge.</p>
+          <div class="badge">
+            <span class="badge-top">INVENTOR</span>
+            <label for="name-input" class="sr-only">Your username</label>
+            <input id="name-input" maxlength="16" autocomplete="off" spellcheck="false" placeholder="e.g. Captain Sprocket" aria-describedby="name-warning">
+            <button class="jelly small blue" id="name-random" type="button">Make one up</button>
+          </div>
+          <p class="warn-note sticky tangerine" id="name-warning" role="note"><strong>Don't use your real name.</strong> Pick a made-up inventor name instead.</p>
+          <p class="name-error" id="name-error" role="alert"></p>
+          <div class="row">
+            <button class="jelly lime big" id="name-go" type="button">Let's build!</button>
+          </div>
+          <div id="name-existing" class="existing" hidden>
+            <p>Or carry on as:</p>
+            <div id="name-list" class="badge-list"></div>
+          </div>
+          <p class="small-print"><button class="linkish" id="name-load" type="button">I have an account code</button></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- title -->
+    <section id="scr-title" class="screen bench" aria-labelledby="title-h">
+      <div class="title-wrap">
+        <div class="clipboard title-board">
+          <div class="clip" aria-hidden="true"></div>
+          <div class="sheet">
+            <h1 id="title-h" class="title-word" aria-label="Wobbleworks"></h1>
+            <p class="tagline">build it wobbly · press Go! · cheer for Wob</p>
+            <div class="notes" role="menu">
+              <button class="sticky lime" data-go="levels" role="menuitem"><b>Build!</b><span>32 puzzles</span></button>
+              <button class="sticky tangerine" data-go="race" role="menuitem"><b>2-Player Race</b><span>same keyboard</span></button>
+              <button class="sticky bubblegum" data-go="editor" role="menuitem"><b>Level Editor</b><span>make &amp; share</span></button>
+              <button class="sticky yellow" data-go="mylevels" role="menuitem"><b>My Levels</b><span>&amp; level codes</span></button>
+              <button class="sticky sky" data-go="settings" role="menuitem"><b>Settings</b><span>sound, keys…</span></button>
+              <button class="sticky white" data-go="account" role="menuitem"><b id="title-name">Inventor</b><span>account &amp; save</span></button>
+            </div>
+            <p class="star-count" id="title-stars"></p>
+          </div>
+        </div>
+        <div class="wob-spot" aria-hidden="true"><canvas id="title-wob" width="260" height="260"></canvas><div class="wob-shadow"></div></div>
+      </div>
+    </section>
+
+    <!-- level select: a sketchbook on a pegboard -->
+    <section id="scr-levels" class="screen pegboard" aria-labelledby="book-title">
+      <div class="hook" aria-hidden="true"></div>
+      <div class="sketchbook">
+        <div class="spiral" aria-hidden="true"></div>
+        <div class="page">
+          <header class="page-head">
+            <button class="back sticky white" type="button" data-back>◀ Bench</button>
+            <div>
+              <h2 id="book-title" class="marker"></h2>
+              <p id="book-blurb" class="blurb"></p>
+            </div>
+            <span id="book-stars" class="book-stars"></span>
+          </header>
+          <div id="book-grid" class="book-grid"></div>
+          <div id="book-custom" class="book-custom" hidden>
+            <div class="code-row">
+              <label for="code-input">Got a level code from a friend?</label>
+              <input id="code-input" placeholder="WOB1-…" autocomplete="off" spellcheck="false">
+              <button class="jelly small lime" id="code-play" type="button">Play it</button>
+              <button class="jelly small blue" id="code-save" type="button">Save it</button>
+            </div>
+            <p class="code-error" id="code-error" role="alert"></p>
+            <div id="custom-grid" class="book-grid custom"></div>
+          </div>
+        </div>
+        <nav class="tabs" id="book-tabs" aria-label="Worlds"></nav>
+      </div>
+    </section>
+
+    <!-- settings -->
+    <section id="scr-settings" class="screen bench" aria-labelledby="set-title">
+      <div class="clipboard wide">
+        <div class="clip" aria-hidden="true"></div>
+        <div class="sheet scroll">
+          <header class="sheet-head"><button class="back sticky white" type="button" data-back>◀ Bench</button><h2 id="set-title" class="marker">Settings</h2></header>
+          <div class="set-grid">
+            <label>Music <input type="range" id="set-music" min="0" max="1" step="0.05"></label>
+            <label>Sound effects <input type="range" id="set-sfx" min="0" max="1" step="0.05"></label>
+            <div class="set-row"><span>Physics speed</span><div class="seg" id="set-speed" role="radiogroup" aria-label="Physics speed"></div></div>
+            <div class="set-row"><span>Motion</span><div class="seg" id="set-motion" role="radiogroup" aria-label="Motion"></div></div>
+            <label class="check"><input type="checkbox" id="set-grid"> Snap parts to the grid</label>
+            <label class="check"><input type="checkbox" id="set-cb"> Colour-blind friendly stress (blue → orange, plus stripes and ! marks)</label>
+          </div>
+          <h3 class="marker">Keys</h3>
+          <p class="hint">Click a key, then press the new key. Esc cancels.</p>
+          <div class="keys" id="set-keys"></div>
+          <div class="row"><button class="jelly small blue" id="set-keys-reset" type="button">Reset keys</button></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- account -->
+    <section id="scr-account" class="screen bench" aria-labelledby="acc-title">
+      <div class="clipboard wide">
+        <div class="clip" aria-hidden="true"></div>
+        <div class="sheet scroll">
+          <header class="sheet-head"><button class="back sticky white" type="button" data-back>◀ Bench</button><h2 id="acc-title" class="marker">Inventor account</h2></header>
+          <div class="acc-badge badge"><span class="badge-top">INVENTOR</span><b id="acc-name"></b><small id="acc-id"></small><span id="acc-stars"></span></div>
+          <p>Your progress is saved in this browser. To carry on at home or on another computer, take your <b>account code</b> with you.</p>
+          <div class="acc-box">
+            <h3>Take your progress with you</h3>
+            <textarea id="acc-code" readonly rows="3" aria-label="Your account code"></textarea>
+            <div class="row">
+              <button class="jelly small lime" id="acc-copy" type="button">Copy code</button>
+              <button class="jelly small blue" id="acc-download" type="button">Download file</button>
+            </div>
+          </div>
+          <div class="acc-box">
+            <h3>Load progress from a code</h3>
+            <textarea id="acc-paste" rows="3" placeholder="Paste a code that starts with WW1." aria-label="Paste an account code"></textarea>
+            <div class="row">
+              <button class="jelly small tangerine" id="acc-load" type="button">Load code</button>
+              <label class="jelly small blue file-btn">Upload file<input type="file" id="acc-file" accept=".txt,text/plain"></label>
+            </div>
+            <p class="acc-msg" id="acc-msg" role="status"></p>
+          </div>
+          <div class="acc-box">
+            <h3>Other inventors on this computer</h3>
+            <div id="acc-list" class="badge-list"></div>
+            <div class="row">
+              <button class="jelly small lime" id="acc-new" type="button">New inventor</button>
+              <button class="jelly small bubblegum" id="acc-delete" type="button">Delete this inventor</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- in-level HUD -->
+    <div id="hud" hidden>
+      <div class="lvl-title"><span id="lvl-num" class="lvl-num"></span> <span id="lvl-name"></span> <span id="lvl-stars" class="lvl-stars" aria-label="Stars"></span></div>
+      <nav id="tray" class="tray" aria-label="Parts"></nav>
+      <aside id="receipt" class="receipt" aria-live="polite"></aside>
+      <div id="tools" class="tools">
+        <button class="pill" id="t-undo" title="Undo (Ctrl+Z)" aria-label="Undo"><svg viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M4 12h10a6 6 0 0 1 0 12" transform="translate(0 -3)"/></svg></button>
+        <button class="pill" id="t-redo" title="Redo (Ctrl+Y)" aria-label="Redo"><svg viewBox="0 0 24 24"><path d="m15 7 5 5-5 5M20 12H10a6 6 0 0 0 0 12" transform="translate(0 -3)"/></svg></button>
+        <button class="pill" id="t-grid" title="Snap to grid" aria-label="Snap to grid" aria-pressed="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM9 4v16M15 4v16M4 9h16M4 15h16"/></svg></button>
+        <button class="pill" id="t-zoomout" title="Zoom out" aria-label="Zoom out"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M7 10h6M15 15l5 5"/></svg></button>
+        <button class="pill" id="t-fit" title="Show the whole level" aria-label="Show the whole level"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg></button>
+        <button class="pill" id="t-zoomin" title="Zoom in" aria-label="Zoom in"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="M7 10h6M10 7v6M15 15l5 5"/></svg></button>
+        <button class="pill" id="t-clear" title="Clear everything" aria-label="Clear everything"><svg viewBox="0 0 24 24"><path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/></svg></button>
+        <button class="pill" id="t-help" title="Tip" aria-label="Show the tip"><svg viewBox="0 0 24 24"><path d="M9 9a3 3 0 1 1 4 3c-1 .5-1 1-1 2M12 18v.5"/></svg></button>
+        <button class="pill" id="t-pause" title="Pause (Esc)" aria-label="Pause"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg></button>
+      </div>
+      <button id="go" class="go-btn" type="button"><span class="go-word">Go!</span></button>
+      <div id="runbar" class="runbar" hidden>
+        <span id="run-label" class="run-label"></span>
+      </div>
+      <div id="note" class="note sticky yellow" hidden><p id="note-text"></p><button class="jelly small" id="note-ok" type="button">Got it</button></div>
+    </div>
+
+    <!-- 2-player race HUD -->
+    <div id="race-hud" hidden>
+      <div class="race-timer" id="race-timer">60</div>
+      <div class="race-side p1" id="race-p1"></div>
+      <div class="race-side p2" id="race-p2"></div>
+      <div class="race-banner" id="race-banner" hidden></div>
+      <div class="race-bottom">
+        <button class="jelly small tangerine" id="race-now" type="button">Both ready: Go now!</button>
+        <button class="jelly small" id="race-quit" type="button">Quit race</button>
+      </div>
+      <div class="race-touch" id="race-touch"></div>
+    </div>
+
+    <!-- level editor -->
+    <div id="editor-ui" hidden>
+      <nav class="tray ed-tray" id="ed-tray" aria-label="Editor tools"></nav>
+      <aside class="ed-panel receipt" id="ed-panel"></aside>
+      <div class="tools ed-tools">
+        <button class="pill" id="ed-undo" aria-label="Undo" title="Undo"><svg viewBox="0 0 24 24"><path d="M9 7 4 12l5 5M4 12h10a6 6 0 0 1 0 12" transform="translate(0 -3)"/></svg></button>
+        <button class="pill" id="ed-redo" aria-label="Redo" title="Redo"><svg viewBox="0 0 24 24"><path d="m15 7 5 5-5 5M20 12H10a6 6 0 0 0 0 12" transform="translate(0 -3)"/></svg></button>
+        <button class="pill wide" id="ed-test" type="button">Test it</button>
+        <button class="pill wide" id="ed-save" type="button">Save</button>
+        <button class="pill wide" id="ed-share" type="button">Share code</button>
+        <button class="pill wide" id="ed-new" type="button">New</button>
+        <button class="pill wide" id="ed-exit" type="button">Exit</button>
+      </div>
+    </div>
+
+    <!-- overlays -->
+    <div id="pause" class="overlay" hidden>
+      <div class="sticky big-note sky" role="dialog" aria-modal="true" aria-labelledby="pause-h">
+        <h2 id="pause-h" class="marker">Tea break!</h2>
+        <p>Wob is waiting patiently.</p>
+        <div class="col">
+          <button class="jelly lime" id="p-resume" type="button">Back to work</button>
+          <button class="jelly tangerine" id="p-restart" type="button">Start this level again</button>
+          <button class="jelly blue" id="p-settings" type="button">Settings</button>
+          <button class="jelly" id="p-quit" type="button">Back to the sketchbook</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="result" class="overlay" hidden>
+      <div class="sticky big-note lime result-note" role="dialog" aria-modal="true" aria-labelledby="res-h">
+        <h2 id="res-h" class="marker">Wob made it!</h2>
+        <div class="res-stars" id="res-stars"></div>
+        <p id="res-text"></p>
+        <div class="col">
+          <button class="jelly tangerine" id="r-next" type="button">Next puzzle ▶</button>
+          <button class="jelly blue" id="r-replay" type="button">Slow-mo replay</button>
+          <button class="jelly" id="r-tinker" type="button">Tinker some more</button>
+          <button class="jelly" id="r-levels" type="button">Sketchbook</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="dialog" class="overlay" hidden>
+      <div class="sticky big-note yellow" role="dialog" aria-modal="true" aria-labelledby="dlg-h">
+        <h2 id="dlg-h" class="marker"></h2>
+        <div id="dlg-body"></div>
+        <div class="col" id="dlg-buttons"></div>
+      </div>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="wipe" class="wipe" aria-hidden="true"></div>
+  </div>
+  <noscript><p class="noscript">Wobbleworks needs JavaScript switched on.</p></noscript>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
